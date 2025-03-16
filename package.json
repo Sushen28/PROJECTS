@@ -1,0 +1,24 @@
+{
+  "name": "tsai2.0",
+  "version": "1.0.0",
+  "main": "configdb.js",
+  "scripts": {
+    "start": "node indexSJ.js",
+    "dev": "nodemon indexSJ.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.14.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

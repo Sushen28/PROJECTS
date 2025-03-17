@@ -1,13 +1,14 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(express.json());  // ✅ Ensures request body is parsed correctly
 
-const authRoutes = require('./routesAUTH');  // Move this up before routes
-
-app.use('/api/auth', authRoutes);  // Ensure this is before app.listen
+// Import authentication routes
+const authRoutes = require('./routesAUTH');  
+app.use('/api/auth', authRoutes);  // ✅ Ensures /signup and /login are available
 
 const PORT = process.env.PORT || 3000;
 

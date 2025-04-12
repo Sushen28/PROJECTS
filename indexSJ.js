@@ -1,5 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const skillRoutes = require('./routesSkill');
+
 
 dotenv.config();
 
@@ -9,6 +11,8 @@ app.use(express.json());  // ✅ Ensures request body is parsed correctly
 // Import authentication routes
 const authRoutes = require('./routesAUTH');  
 app.use('/api/auth', authRoutes);  // ✅ Ensures /signup and /login are available
+app.use('/api/skill', skillRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 

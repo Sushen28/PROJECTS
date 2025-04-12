@@ -1,41 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const pool = require('./configdb'); // PostgreSQL connection
+const pool = require('./configdb');  // PostgreSQL connection
 require('dotenv').config();
 
 const router = express.Router();
-
-// ✅ Signup Route
-router.post('/signup', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ error: "All fields are required" });
-        }
-
-        // Check if user already exists
-        const existingUser = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-        if (existingUser.rows.length > 0) {
-            return res.status(400).json({ error: "User already exists" });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert user into DB
-        const newUser = await pool.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING id, email",
-            [email, hashedPassword]
-        );
-
-        res.status(201).json({ message: "User registered successfully", user: newUser.rows[0] });
-    } catch (error) {
-        console.error("🔥 ERROR in Signup Route:", error);  // Logs the exact error
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
-    }
-});
 
 // ✅ Login Route
 router.post('/login', async (req, res) => {
@@ -69,7 +38,7 @@ router.post('/login', async (req, res) => {
 
         res.json({ message: "Login successful", token });
     } catch (error) {
-        console.error(error);
+        console.error("🔥 ERROR in Login Route:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });

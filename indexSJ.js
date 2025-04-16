@@ -12,6 +12,8 @@ app.use(express.json());  // ✅ Ensures request body is parsed correctly
 const authRoutes = require('./routesAUTH');  
 app.use('/api/auth', authRoutes);  // ✅ Ensures /signup and /login are available
 app.use('/api/skill', skillRoutes);
+const jobRoutes = require('./routesJobs');
+app.use('/api/jobs', jobRoutes);
 
 
 const PORT = process.env.PORT || 3000;

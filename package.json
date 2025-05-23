@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "configdb.js",
   "scripts": {
-    "start": "node indexSJ.js",
+    "start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "dev": "nodemon indexSJ.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

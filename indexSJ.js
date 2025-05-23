@@ -1,27 +1,48 @@
 const express = require('express');
-const dotenv = require('dotenv');
-const skillRoutes = require('./routesSkill');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const pool = require('./configdb'); // your DB connection
+require('dotenv').config();
 
+const router = express.Router();
 
-dotenv.config();
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-const app = express();
-app.use(express.json());  // ✅ Ensures request body is parsed correctly
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password required" });
+    }
 
-// Import authentication routes
-const authRoutes = require('./routesAUTH');  
-app.use('/api/auth', authRoutes);  // ✅ Ensures /signup and /login are available
-app.use('/api/skill', skillRoutes);
-const jobRoutes = require('./routesJobs');
-app.use('/api/jobs', jobRoutes);
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
 
-const PORT = process.env.PORT || 3000;
+    const user = result.rows[0];
 
-app.get('/', (req, res) => {
-    res.send('Welcome to the Skill & Job Portal!');
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    return res.json({
+      message: "Login successful",
+      token,
+      user: { id: user.id, role: user.role, email: user.email }
+    });
+
+  } catch (err) {
+    console.error("🔥 Login Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+module.exports = router;

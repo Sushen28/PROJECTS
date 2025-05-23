@@ -24,10 +24,14 @@ router.post('/apply', authenticateToken, async (req, res) => {
   try {
     // 1. Check if user has enough coins
     const userRes = await pool.query('SELECT coins FROM users WHERE id = $1', [userId]);
-    const userCoins = userRes.rows[0].coins;
+    const userCoins = userRes.rows[0]?.coins;
 
     const jobRes = await pool.query('SELECT coin_cost FROM jobs WHERE id = $1', [job_id]);
-    const jobCost = jobRes.rows[0].coin_cost;
+    const jobCost = jobRes.rows[0]?.coin_cost;
+
+    if (userCoins === undefined || jobCost === undefined) {
+      return res.status(400).json({ error: 'Invalid job or user' });
+    }
 
     if (userCoins < jobCost) {
       return res.status(403).json({ error: 'Not enough coins to apply for this job' });
@@ -44,6 +48,25 @@ router.post('/apply', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Job apply error:", error);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// ✅ GET /api/jobs/applied - View applied jobs for the current user
+router.get('/applied', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const result = await pool.query(`
+      SELECT j.id, j.title, j.description
+      FROM jobs j
+      INNER JOIN applications a ON j.id = a.job_id
+      WHERE a.user_id = $1
+    `, [userId]);
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching applied jobs:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
